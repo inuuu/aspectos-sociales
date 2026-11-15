@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autoevaluación · Aspectos Sociales de la Universidad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          serif: ['Newsreader', 'Georgia', 'serif'],
+          mono: ['JetBrains Mono', 'monospace'],
+        },
+        colors: {
+          ink: '#0b0d13',
+          surface: '#121620',
+          panel: '#171c28',
+          panelHover: '#1e2434',
+          line: '#262d40',
+          paper: '#f1f0ec',
+          mute: '#8e95a9',
+          gold: '#eab308',
+          accent: '#f59e0b'
+        }
+      }
+    }
+  };
+</script>
+<style>
+  html { color-scheme: dark; scroll-behavior: smooth; }
+  body {
+    background-color: #0b0d13;
+    background-image: 
+      radial-gradient(at 15% 10%, rgba(234, 179, 8, 0.08) 0px, transparent 45%),
+      radial-gradient(at 85% 5%, rgba(56, 189, 248, 0.06) 0px, transparent 45%),
+      radial-gradient(at 50% 95%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: #f1f0ec;
+  }
+  .glass-card {
+    background: rgba(23, 28, 40, 0.80);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255,255,255,0.03) inset;
+  }
+  .opt-card {
+    transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .opt-card:not(:disabled):hover {
+    transform: translateY(-1.5px);
+  }
+  .opt-card:not(:disabled):active {
+    transform: translateY(0px) scale(0.996);
+  }
+  button:focus-visible, select:focus-visible, input:focus-visible {
+    outline: 2px solid #eab308;
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .fresh { animation: fresh .26s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes fresh {
+      from { opacity: 0; transform: translateY(8px) scale(0.992); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+  }
+  kbd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    padding: 0.12rem 0.42rem;
+    border-radius: 0.38rem;
+    background: #171c28;
+    border: 1px solid #2b3348;
+    box-shadow: 0 2px 0 #0b0d13;
+    color: #cbd5e1;
+  }
+</style>
+</head>
+<body class="min-h-screen antialiased selection:bg-gold/30 selection:text-amber-200">
+<div id="app" class="max-w-3xl mx-auto px-4 py-8 sm:py-12"></div>
+
+<script>
+const TITULO = "Aspectos Sociales de la Universidad";
+const SUBTITULO = "Simulador interactivo de parciales y cuestionarios de cursada · UNNOBA";
+
+const PREGUNTAS = [
+  {
+    "id": 1,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "¿En qué ciudad surge la primera Universidad en el mundo?",
+    "opciones": ["En Córdoba", "En Bolonia", "En París", "En La Plata"],
+    "correcta": 1,
+    "explicacion": "El resumen de la Unidad 1 ubica a Bolonia como modelo pionero (universidad organizada por estudiantes, orientada al derecho). París fue el otro modelo, pero de maestros. Córdoba y La Plata son universidades argentinas muy posteriores."
+  },
+  {
+    "id": 2,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "¿En qué siglos la Universidad comienza a sufrir una transformación de sus funciones en el mundo?",
+    "opciones": ["Siglo XVI y XVII", "Siglo XIV y XV", "Siglo XVIII y XIX"],
+    "correcta": 2,
+    "explicacion": "Según la Unidad 1, a fines del s. XVIII y principios del XIX las universidades se subordinaron a las autoridades civiles y se orientaron a las ciencias y a las necesidades del Estado. Los siglos XIV-XVII corresponden a la etapa conservadora ligada a la Iglesia."
+  },
+  {
+    "id": 3,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "¿En qué siglos la Universidad comienza a sufrir una transformación de sus funciones en el mundo? (variante con otras opciones)",
+    "opciones": ["Siglo XVI y XVII", "Siglo XVIII y XIX", "Siglo XIX y XX"],
+    "correcta": 1,
+    "explicacion": "La transformación (subordinación al poder civil, orientación a la ciencia y modelos humboldtiano y napoleónico) arranca a fines del s. XVIII y se consolida en el XIX. El XVI-XVII es la etapa escolástica y el XX es la masificación."
+  },
+  {
+    "id": 4,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "¿Cuál de los dos modelos de Universidades Europeas se desarrolló bajo los criterios de la ciencia y la investigación?",
+    "opciones": ["El de Humboldt (modelo alemán)", "El Napoleónico (modelo francés)"],
+    "correcta": 0,
+    "explicacion": "El modelo humboldtiano concibe a la universidad como centro de investigación científica y búsqueda del conocimiento. El napoleónico se enfoca en la formación profesionalista y los títulos habilitantes."
+  },
+  {
+    "id": 5,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "De las primeras Universidades se esperaba que:",
+    "opciones": [
+      "Transmitan conocimientos con un carácter utilitario",
+      "Transmitan conocimientos y contribuyan a la mejor organización de una sociedad cristiana",
+      "Generen producción científica",
+      "Resuelvan problemas de la vida cotidiana.",
+      "Tengan una función social"
+    ],
+    "correcta": 1,
+    "explicacion": "Las universidades medievales derivaron de escuelas catedralicias y estaban ligadas a la Iglesia (tradición escolástica). No buscaban producción científica, utilidad práctica ni función social, que aparecen recién con los modelos del s. XIX y con la Reforma de 1918."
+  },
+  {
+    "id": 6,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "Elegir la opción correcta para cada Universidad Argentina según orden fundacional (momento en que se fundó): La segunda Universidad Argentina es: / La tercera Universidad Argentina es: / La primera Universidad Argentina es:",
+    "opciones": ["La Universidad de Buenos Aires", "La Universidad Nacional de La Plata", "La Universidad Nacional de Córdoba"],
+    "correcta": [0, 1, 2],
+    "explicacion": "Orden fundacional: Córdoba (colonial, jesuitas, s. XVII) es la primera; Buenos Aires (posindependencia, modelo napoleónico) la segunda; La Plata la tercera. El resumen de la Unidad 1 menciona Córdoba como universidad colonial y el modelo napoleónico posindependencia; el orden exacto surge de la captura."
+  },
+  {
+    "id": 7,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "Vinculá cada Universidad con su tradición originaria: 1) Formación de clérigos y tradición escolástica / 2) Formación académica y utilitarista / 3) Investigación y Ciudad Universitaria / 4) Extensión, Investigación y Docencia",
+    "opciones": [
+      "Universidad Nacional de Córdoba",
+      "Universidad de Buenos Aires",
+      "Universidad Nacional de La Plata",
+      "Universidad Nacional del Noroeste de la Provincia de Buenos Aires"
+    ],
+    "correcta": [0, 1, 2, 3],
+    "explicacion": "Córdoba nació colonial, bajo el modelo escolástico de Salamanca y Alcalá. Buenos Aires adoptó el modelo napoleónico y utilitarista. La Plata se asocia con investigación y Ciudad Universitaria. UNNOBA se organiza sobre extensión, investigación y docencia, inspirada en la Reforma del 18 (Unidad 3)."
+  },
+  {
+    "id": 8,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "Indique Verdadero o Falso: \"Las dos universidades, Buenos Aires y Córdoba, eran centros de formación profesional, donde el objetivo central de la formación académica era la de formar profesionales, específicamente médicos, abogados e ingenieros. La investigación y el ejercicio de disciplinas humanísticas se hacían por fuera de los ámbitos académicos formales\".",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "Es coherente con la etapa posindependencia: universidades estatales de modelo napoleónico que formaban élites profesionales y políticas (médicos y abogados). La investigación no era una función formal de esas instituciones."
+  },
+  {
+    "id": 9,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "¿Cómo eran las Universidades argentinas antes de la Reforma de 1918? Indica la/s opción/es correcta/s.",
+    "opciones": [
+      "Progresistas, permeables a los cambios y oligárquicas.",
+      "De orientación napoleónica y utilitaria",
+      "Elitistas, oligárquicas y excluyentes.",
+      "Elitistas, inclusivas y abiertas."
+    ],
+    "correcta": [1, 2],
+    "explicacion": "La Reforma surge como rebelión contra una enseñanza escolástica, dogmática y oligárquica, y las universidades eran de orientación napoleónica y profesionalista. 'Progresistas/permeables' e 'inclusivas y abiertas' contradicen ese diagnóstico."
+  },
+  {
+    "id": 10,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "¿Cómo eran las Universidades argentinas antes de la Reforma de 1918? Indica la/s opción/es correcta/s. (variante)",
+    "opciones": [
+      "De orientación napoleónica y utilitaria.",
+      "Progresistas, permeables a los cambios y oligárquicas.",
+      "Elitistas, inclusivas y abiertas.",
+      "Elitistas, oligárquicas y excluyentes; transmitían conocimientos con finalidades de carácter utilitario."
+    ],
+    "correcta": [0, 3],
+    "explicacion": "Mismo criterio que la pregunta anterior: orientación napoleónica/utilitaria y carácter elitista, oligárquico y excluyente. Las otras dos opciones describen lo opuesto."
+  },
+  {
+    "id": 11,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "¿Qué ocurría en el contexto a la Reforma Universitaria del 18'?",
+    "opciones": [
+      "Creciente Urbanización",
+      "Importante proceso de industrialización",
+      "Sufragio Universal (Ley Sáenz Peña)",
+      "Poca intervención del clero en la política",
+      "La elite no dominaba la política",
+      "Ascenso de clases medias a las esferas políticas"
+    ],
+    "correcta": [0, 1, 2, 5],
+    "explicacion": "El contexto fue de urbanización, industrialización, sufragio universal (Ley Sáenz Peña) y ascenso político de las clases medias. El clero seguía interviniendo en la política y la élite aún dominaba, lo que alimentó la rebelión estudiantil. Estos datos del contexto surgen de la captura; el resumen solo menciona la rebelión contra la enseñanza oligárquica."
+  },
+  {
+    "id": 12,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "¿Cuáles eran los postulados de la reforma de 1918? Indica la/s opcion/es correcta/s.",
+    "opciones": [
+      "Independencia administrativa, política y dependencia económica",
+      "Independencia administrativa, económica y dependencia política.",
+      "Restricciones en el ingreso",
+      "Democratización del ingreso",
+      "Participación de los alumnos en el gobierno de la Universidad",
+      "Extensión Universitaria",
+      "Independencia administrativa, política y económica.",
+      "Independencia económica, política y dependencia administrativa",
+      "Modernización de métodos"
+    ],
+    "correcta": [3, 4, 5, 6, 8],
+    "explicacion": "La Reforma consagró autonomía (independencia administrativa, política y económica), cogobierno con participación estudiantil, extensión, democratización del ingreso y modernización de métodos. Las combinaciones con 'dependencia' y las 'restricciones en el ingreso' son contrarias a su ideario."
+  },
+  {
+    "id": 13,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "¿A qué postulado de la Reforma Universitaria del 18' hace referencia la siguiente expresión? \"Hombres de una República libre, acabamos de romper la última cadena que, en pleno siglo XX, nos ataba a la antigua dominación monárquica y monástica. Hemos resuelto llamar a todas las cosas por el nombre que tienen. Córdoba se redime. Desde hoy contamos para el país con una vergüenza menos y una libertad más. Los dolores que quedan son las libertades que faltan. Creemos no equivocarnos. Las resonancias del corazón nos lo advierten: estamos pisando sobre una revolución, estamos viviendo una hora americana\"",
+    "opciones": ["Docencia Libre", "Autonomía", "Democratización del ingreso", "Cogobierno", "Unidad Latinoamericana"],
+    "correcta": 4,
+    "explicacion": "El Manifiesto Liminar se dirige a los 'hombres libres de Sud América' y habla de 'una hora americana', y el resumen destaca su impacto regional. La captura marca Unidad Latinoamericana; Autonomía fue la respuesta errónea del alumno."
+  },
+  {
+    "id": 14,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "Indique Verdadero o Falso: \"La Reforma de 1918 determinó que el gobierno de las casas de estudios quedase en manos de los protagonistas de la vida académica: de sus profesores y sus estudiantes, y en algunos casos también de los graduados\".",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "El resumen indica que la Reforma consagró el cogobierno tripartito (docentes, estudiantes y graduados)."
+  },
+  {
+    "id": 15,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "Indique Verdadero o Falso: \"El movimiento de la Reforma se originó en La Plata por la presión de los estudiantes que exigían cambios en el régimen de estudios, la modernización de los contenidos y la transformación de la organización institucional de la universidad. El gobierno de aquel entonces presidido por Hipólito Irigoyen intervino la Universidad de Córdoba y forzó un proceso de cambios que se tradujeron luego en las casas de estudios de La Plata y Buenos Aires\".",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 1,
+    "explicacion": "La Reforma surgió en la Universidad de Córdoba (1918), como rebelión estudiantil, y de ahí se extendió. No se originó en La Plata."
+  },
+  {
+    "id": 16,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "El conflicto planteado por los estudiantes universitarios de Córdoba no se extendió a otras universidades",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "ATENCIÓN: la captura indica 'La respuesta correcta es Verdadero', pero eso contradice el resumen de la Unidad 1, que dice que la Reforma se extendió rápidamente por América Latina e inspiró movimientos en todo el continente. Lo más probable es que la plataforma tenga un error o que el enunciado original fuera distinto. Dejé lo marcado en la captura; conviene confirmarlo con la cátedra."
+  },
+  {
+    "id": 17,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "Indicar Verdadero o Falso: Lo sorprendente es que el \"Manifiesto de la Juventud Universitaria de Córdoba\" fue emitido el 21 de junio de 1998 por los jóvenes cordobeses para explicar su movimiento",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 1,
+    "explicacion": "El Manifiesto Liminar se emitió en 1918, no en 1998 (1998 es el año de la cumbre de la UNESCO que consagró la extensión, Unidad 4)."
+  },
+  {
+    "id": 18,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "Un hito central en la historia de la universidad argentina lo constituye, sin duda, la Reforma Universitaria de 1918",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "La Reforma de 1918 es el eje de la Unidad 1: rompió con la universidad escolástica y oligárquica y consagró autonomía, cogobierno, libertad de cátedra y extensión."
+  },
+  {
+    "id": 19,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "Los ideales de la Reforma Universitaria de 1918 tienen vigencia en la agenda actual del Sistema de Educación Superior Nacional",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "Sus principios (autonomía, cogobierno, extensión, acceso) siguen vigentes; la Unidad 3 muestra que el Estatuto de la UNNOBA se organiza bajo su inspiración."
+  },
+  {
+    "id": 20,
+    "unidad": "Unidad 1",
+    "fuente": "Parcial",
+    "pregunta": "Indique Verdadero o Falso: \"La universidad argentina posee características que la distinguen de las demás universidades del mundo. La gratuidad, el ingreso restrictivo, el cogobierno y la extensión (que da cuenta de su compromiso social) son rasgos distintivos de nuestra universidad desde sus inicios allá por el siglo XIX y comienzos del XX\".",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 1,
+    "explicacion": "Es falso porque incluye 'ingreso restrictivo': la tradición argentina es de democratización del ingreso. Además, la gratuidad, el cogobierno y la extensión vienen de la Reforma (1918) y de la etapa posterior a 1945 (eliminación de aranceles y exámenes de ingreso)."
+  },
+  {
+    "id": 21,
+    "unidad": "Unidad 2",
+    "fuente": "Parcial",
+    "pregunta": "¿En qué año fue promulgada la Ley de Educación Superior?",
+    "opciones": ["2002", "1991", "1995", "1918", "2015"],
+    "correcta": 2,
+    "explicacion": "El resumen de la Unidad 2 indica que la Ley Nº 24.521 es de 1995. 1918 es la Reforma Universitaria."
+  },
+  {
+    "id": 22,
+    "unidad": "Unidad 2",
+    "fuente": "Parcial",
+    "pregunta": "Instrumento que permite regular el funcionamiento de la educación superior en conjunto, incluye a la educación superior universitaria y no universitaria, pública y privada",
+    "opciones": ["Calendario Académico", "Ninguna es correcta", "Ley de Educación Superior", "CONEAU", "Estatuto Universitario"],
+    "correcta": 2,
+    "explicacion": "La LES (24.521) regula el sistema en conjunto, universitario y no universitario, público y privado. El Estatuto rige a cada universidad y la CONEAU solo evalúa y acredita."
+  },
+  {
+    "id": 23,
+    "unidad": "Unidad 2",
+    "fuente": "Parcial",
+    "pregunta": "La Ley de Educación Superior (24.521): Indica la/s opción/es correcta/s",
+    "opciones": [
+      "Regula el funcionamiento de la Educación Superior: incluye a la educación superior universitaria y no universitaria, pública y privada",
+      "Regula el funcionamiento de la Educación Superior: incluye solo a la educación superior no universitaria, pública y privada",
+      "Afirma que los estatutos los establece cada Universidad y los debe informar al Poder Ejecutivo",
+      "Fortalece los procesos de evaluación para el control de la calidad en materia de educación superior",
+      "Regula el funcionamiento de la Educación Superior: incluye solo a la educación superior universitaria pública.",
+      "Reconoce la autonomía universitaria"
+    ],
+    "correcta": [0, 2, 3, 5],
+    "explicacion": "La LES abarca todo el sistema (público y privado, universitario y no universitario), reconoce la autonomía, deja que cada universidad dicte su estatuto (informándolo al Ejecutivo) y refuerza la evaluación de calidad (CONEAU). Las opciones 'solo no universitaria' y 'solo universitaria pública' son restrictivas y falsas."
+  },
+  {
+    "id": 24,
+    "unidad": "Unidad 2",
+    "fuente": "Parcial",
+    "pregunta": "La Ley de Educación Superior (24.521): Indica la/s opcion/es incorrecta/s",
+    "opciones": [
+      "Introdujo grandes cambios como el manejo de fondos descentralizado a cargo de cada Universidad; autorizó a las Universidades a establecer el acceso, permanencia y egreso en forma autónoma; autorizó a cada Universidad a definir su propio régimen salarial docente y administración del personal.",
+      "No introdujo grandes cambios, sólo centralizó el manejo de los fondos en el Estado y autorizó a las Universidades a establecer el acceso, permanencia y egreso en forma autónoma.",
+      "Se promulgó en 1995 con el apoyo de la totalidad de los rectores y profesores, pero no de los movimientos estudiantiles",
+      "Se promulgó en 1995 con el apoyo de la totalidad de los rectores y profesores y de los movimientos estudiantiles",
+      "Se promulgó en 1995 con gran disenso de parte de rectores, profesores y movimientos estudiantiles"
+    ],
+    "correcta": [1, 2, 3],
+    "explicacion": "La consigna pide las INCORRECTAS. Según la captura son las opciones 1, 2 y 3. La LES generó fuerte rechazo inicial de la comunidad universitaria (por eso las que hablan de apoyo son falsas) y sí introdujo cambios importantes. La opción 'gran disenso' es la verdadera y no se marca como incorrecta."
+  },
+  {
+    "id": 25,
+    "unidad": "Unidad 2",
+    "fuente": "Parcial",
+    "pregunta": "En el marco de la crisis de las universidades en el que surge la Ley de Educación Superior ¿cuáles eran los acontecimientos más significativos del momento, en relación a la Universidad? Indique la/s opción/es correcta/s",
+    "opciones": [
+      "Restricciones financieras.",
+      "La existencia de beneficios para docentes y empleados de la Universidad.",
+      "Baja matrícula universitaria.",
+      "Apogeo de las universidades privadas",
+      "Alta matrícula universitaria."
+    ],
+    "correcta": [0, 3, 4],
+    "explicacion": "El resumen de la Unidad 2 dice que la LES surgió para regular un sistema con rápida proliferación y heterogeneidad de instituciones (apogeo de privadas), en un contexto de restricciones financieras y de masificación de la matrícula (resumen de Unidad 1). 'Baja matrícula' y 'beneficios para docentes' no corresponden."
+  },
+  {
+    "id": 26,
+    "unidad": "Unidad 2",
+    "fuente": "Parcial",
+    "pregunta": "Elije la/s opción/es correcta/s: ¿Qué características presentaba la crisis de las universidades previa al surgimiento de la Ley de Educación Superior?",
+    "opciones": [
+      "Existencia de beneficios para docentes y empleados de la Universidad",
+      "Baja matrícula universitaria",
+      "Mejora de la calidad de las instituciones universitarias",
+      "Restricciones financieras",
+      "Alta matrícula universitaria"
+    ],
+    "correcta": [3, 4],
+    "explicacion": "Mismo contexto que la pregunta anterior: restricciones financieras y alta matrícula. En esta variante no figura la opción 'apogeo de las privadas'. 'Mejora de la calidad' no describe una crisis."
+  },
+  {
+    "id": 27,
+    "unidad": "Unidad 2",
+    "fuente": "Parcial",
+    "pregunta": "Indica Verdadero o Falso: La CONEAU organiza los procesos de acreditación de carreras de grado a través de convocatorias que involucran a todas las carreras que ofrecen el título correspondiente. Estos procesos comprenden las fases de autoevaluación de la carrera, la actuación de los Comités de Pares y la decisión final de la CONEAU.",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "La Unidad 2 indica que la LES instituyó la evaluación obligatoria y creó la CONEAU para evaluar y acreditar carreras de grado y posgrado."
+  },
+  {
+    "id": 28,
+    "unidad": "Unidad 2",
+    "fuente": "Parcial",
+    "pregunta": "Indicar Verdadero o Falso: La asignación presupuestaria para las universidades debería considerar en líneas generales la equidad, la suficiencia y la eficiencia.",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "Está marcado Verdadero en todas las capturas. Se vincula con la autonomía administrativa y la administración soberana del presupuesto (Unidad 2). El resumen no desarrolla estos tres criterios; la respuesta sale de la captura."
+  },
+  {
+    "id": 29,
+    "unidad": "Unidad 2",
+    "fuente": "Parcial",
+    "pregunta": "La Autonomía Universitaria: Indica la/s opción/es correcta/s",
+    "opciones": [
+      "Es un instrumento de protección de la actividad universitaria.",
+      "Es un instrumento que incluye la vinculación de los fines universitarios con los demás fines sociales y nacionales",
+      "Es un instrumento para el desenvolvimiento de los objetivos de las Universidades.",
+      "Es un instrumento que incluye la vinculación de los fines universitarios con los demás fines sociales, políticos y partidarios"
+    ],
+    "correcta": [0, 1, 2],
+    "explicacion": "La autonomía protege la actividad universitaria y le permite desarrollar sus objetivos, vinculándolos con fines sociales y nacionales. La opción 'políticos y partidarios' es incorrecta: la autonomía busca independencia del Estado y de intereses partidarios."
+  },
+  {
+    "id": 30,
+    "unidad": "Unidad 2",
+    "fuente": "Parcial",
+    "pregunta": "Elija la/s palabras correctas: El principio de Autonomía Universitaria implica:",
+    "opciones": ["autonomía de gobierno", "autonomía académica", "autonomía administrativa", "autonomía financiera"],
+    "correcta": [0, 1, 2, 3],
+    "explicacion": "Según Ornelas Delgado (Unidad 2), la autonomía incluye la dimensión académica, la administrativa (autogestión y aplicación de recursos) y la legislativa/de autogobierno (elegir autoridades, dictar su normativa). La captura marca las cuatro como correctas, incluida la financiera."
+  },
+  {
+    "id": 31,
+    "unidad": "Unidad 3",
+    "fuente": "Parcial",
+    "pregunta": "La UNNOBA: Indica la/s opción/es correcta/s",
+    "opciones": [
+      "Está organizada en Escuelas, que son Unidades Académicas, y en Departamentos; tiene una estructura centralizada",
+      "Está organizada en Facultades que son Unidades Académicas, y en Departamentos; tiene una estructura descentralizada",
+      "Está organizada en Facultades que son Unidades Académicas y en Departamentos; tiene una estructura centralizada",
+      "Está organizada en Escuelas, que son Unidades Académicas, y en Departamentos; tiene una estructura descentralizada"
+    ],
+    "correcta": 0,
+    "explicacion": "El Estatuto (Unidad 3) organiza la universidad en Escuelas (unidades académicas) y Departamentos (unidades disciplinarias), con gobierno central en Asamblea, Consejo Superior y Rector. No hay Facultades. La estructura centralizada surge de la captura."
+  },
+  {
+    "id": 32,
+    "unidad": "Unidad 3",
+    "fuente": "Parcial",
+    "pregunta": "La Asamblea Universitaria constituye el máximo órgano de gobierno de la Universidad. El mismo está integrado por: dos (2) Profesores por Departamento; tres (3) Auxiliares Docentes; cuatro (4) Estudiantes, los Directores de Escuela; y un (1) representante del personal No Docente de la Universidad.",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "La Asamblea es el máximo órgano de gobierno (Unidad 3). La composición exacta sale de la captura: una alumna marcó Falso y fue corregida a Verdadero."
+  },
+  {
+    "id": 33,
+    "unidad": "Unidad 3",
+    "fuente": "Parcial",
+    "pregunta": "¿Cuáles son las funciones de la Asamblea Universitaria? Indica la/s opción/es correcta/s",
+    "opciones": ["Suspender a los miembros del Consejo Superior", "Modificar el Estatuto", "Elegir al Rector", "Elegir al Director"],
+    "correcta": [1, 2],
+    "explicacion": "La Asamblea, máximo órgano de gobierno, modifica el Estatuto y elige al Rector. Elegir al Director corresponde al nivel de Escuela (Consejo Directivo). Suspender al Consejo Superior no está entre sus funciones."
+  },
+  {
+    "id": 34,
+    "unidad": "Unidad 3",
+    "fuente": "Parcial",
+    "pregunta": "Indica Verdadero o Falso: El Consejo Superior de UNNOBA está integrado por un (1) Profesor por cada uno de los Departamentos, dos (2) Docentes Auxiliares, tres (3) alumnos, dos (2) graduados, los Directores de las Escuelas, un (1) representante del personal no docente.",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 1,
+    "explicacion": "La captura lo marca Falso. La composición detallada no está en el resumen, que solo dice que el Consejo Superior es el órgano normativo y de gestión. Probablemente la composición correcta es otra, ya que esa descripción se parece a la de la Asamblea."
+  },
+  {
+    "id": 35,
+    "unidad": "Unidad 3",
+    "fuente": "Parcial",
+    "pregunta": "Cada Unidad Académica de la UNNOBA tiene: Indica la/s opcione/s incorrecta/s:",
+    "opciones": [
+      "Su propia Secretaría de Extensión, de Investigación y Relaciones Internacionales.",
+      "Su propio Rector y Consejo Superior",
+      "Sus propios recursos financieros",
+      "Su propio Director y Consejo Directivo"
+    ],
+    "correcta": [0, 1, 2],
+    "explicacion": "La consigna pide las INCORRECTAS. A nivel de Escuela el gobierno lo ejercen el Consejo Directivo y el Director (opción 4, correcta como atributo). Rector y Consejo Superior son del gobierno central. Las Secretarías y los recursos financieros propios, según la captura, no corresponden a cada unidad académica."
+  },
+  {
+    "id": 36,
+    "unidad": "Unidad 3",
+    "fuente": "Parcial",
+    "pregunta": "Seleccioná la/s opción/s correcta/s: Cada Unidad Académica de la UNNOBA tiene:",
+    "opciones": [
+      "Su propio Director y Consejo Directivo",
+      "Su propia Secretaría de Extensión, de Investigación y Relaciones Internacionales.",
+      "Su propio Rector y Consejo Superior",
+      "Sus propios recursos financieros"
+    ],
+    "correcta": 0,
+    "explicacion": "Según el Estatuto (Unidad 3), a nivel de Escuelas el gobierno lo ejercen el Consejo Directivo y el Director. Rector y Consejo Superior son del gobierno central."
+  },
+  {
+    "id": 37,
+    "unidad": "Unidad 3",
+    "fuente": "Parcial",
+    "pregunta": "Una vez asignados los recursos presupuestarios a las Universidades Nacionales, qué órgano es el encargado de la distribución de ese presupuesto hacia el interior de cada institución universitaria:",
+    "opciones": [
+      "Consejo superior",
+      "El Congreso Nacional",
+      "Consejo interuniversitario Nacional (CIN)",
+      "El Ministerio de educación a través de la SPU (Secretaría de políticas universitarias)"
+    ],
+    "correcta": 0,
+    "explicacion": "El Consejo Superior es el órgano normativo y de gestión del gobierno central (Unidad 3) y, por la autonomía, distribuye el presupuesto internamente. El Congreso, el CIN y la SPU intervienen antes, no en la distribución interna."
+  },
+  {
+    "id": 38,
+    "unidad": "Unidad 3",
+    "fuente": "Parcial",
+    "pregunta": "La UNNOBA se organiza bajo la inspiración de los principios y postulados de la Reforma Universitaria de 1918, cuyo Manifiesto Liminar forma parte integrante del Estatuto.",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "El resumen de la Unidad 3 indica que el Estatuto de la UNNOBA se organiza bajo la inspiración de la reforma de 1918."
+  },
+  {
+    "id": 39,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "Se relaciona con la influencia potencial de la Universidad en el mejoramiento de la calidad de vida de la población. Para lo cual a partir del conocimiento de la realidad social y su cultura, enriquece y re dimensiona toda su actividad académica conjunta.",
+    "opciones": ["Enseñanza", "Investigación", "Internacionalización", "Cooperación", "Extensión"],
+    "correcta": 4,
+    "explicacion": "Describe la extensión: aporta resultados a la comunidad y a la vez incorpora saberes de la realidad social, en un intercambio bidireccional (Itoiz, Unidad 4)."
+  },
+  {
+    "id": 40,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "La extensión universitaria: Indica la/s opción/es correcta/s",
+    "opciones": [
+      "Se incorpora a partir de la Reforma Universitaria",
+      "Se refiere a los servicios que presta la universidad a su entorno y a la sociedad para poner a su alcance la tecnología y el conocimiento",
+      "Es una actividad unidireccional, de la Universidad a la sociedad.",
+      "Se incorpora con la Ley de Educación Superior.",
+      "Es una actividad bidireccional, entre la Universidad y la sociedad."
+    ],
+    "correcta": [0, 1, 4],
+    "explicacion": "Según Itoiz, la extensión se incorporó plenamente con la Reforma de 1918 y es un intercambio bidireccional. No es unidireccional ni nace con la LES (1995); de hecho, la LES de los 90 tendió a reducirla a vinculación con empresas."
+  },
+  {
+    "id": 41,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "La extensión universitaria tiene como objetivo promover el desarrollo cultural, y la transferencia del conocimiento y la cultura entre los distintos sectores sociales de la comunidad",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "Coincide con los ejes de la extensión del resumen: transferencia comunitaria, difusión cultural y artística, y prácticas comunitarias."
+  },
+  {
+    "id": 42,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "Dentro de la Extensión Universitaria, se pueden encontrar las siguientes propuestas: Indica la/s opción/es correcta/s",
+    "opciones": [
+      "Prácticas comunitarias",
+      "Dictado de carreras de grado",
+      "Proyectos de capacitación",
+      "Actividades culturales y artísticas",
+      "Proyectos de investigación"
+    ],
+    "correcta": [0, 2, 3],
+    "explicacion": "El resumen incluye en la extensión la capacitación continua, la difusión cultural y artística y las prácticas comunitarias. El dictado de carreras es docencia y los proyectos de investigación son investigación."
+  },
+  {
+    "id": 43,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "Dentro de la Extensión Universitaria, se pueden encontrar las siguientes propuestas: Indica la/s opción/es correcta/s (variante)",
+    "opciones": [
+      "Cursos de Posgrado",
+      "Proyectos de investigación",
+      "Actividades de capacitación",
+      "Actividades deportivas",
+      "Actividades de transferencia al entorno comunitario"
+    ],
+    "correcta": [2, 3, 4],
+    "explicacion": "Capacitación, actividades deportivas y transferencia comunitaria son propuestas de extensión. Los cursos de posgrado son docencia (los coordina el Instituto de Posgrado, Unidad 3) y los proyectos de investigación son otra función. Las actividades deportivas no figuran en el resumen; la respuesta surge de la captura."
+  },
+  {
+    "id": 44,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "Una práctica comunitaria tiene como objetivo: Indica la/s opción/es correcta/s",
+    "opciones": [
+      "Integrar el conocimiento teórico y práctico con las problemáticas de nuestra región posibilitando de esta manera la transformación social",
+      "Atender a una problemática específica de la sociedad brindando soluciones a la misma",
+      "Profundizar la función social de la Universidad",
+      "Generar conocimiento"
+    ],
+    "correcta": [0, 1, 2],
+    "explicacion": "Las prácticas comunitarias integradas a la formación estudiantil son parte de la extensión (Unidad 4): fomentan el compromiso público y la función social. 'Generar conocimiento' es el objetivo de la investigación."
+  },
+  {
+    "id": 45,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "Si quiero llegar a la comunidad de manera directa desde la Universidad, se debe intervenir a través de:",
+    "opciones": [
+      "Dictado de una asignatura de grado",
+      "Práctica comunitaria",
+      "Programa de extensión",
+      "Proyecto de investigación"
+    ],
+    "correcta": [1, 2],
+    "explicacion": "La extensión es el canal de vinculación directa con la comunidad: prácticas comunitarias y programas de extensión. Una asignatura de grado es docencia y un proyecto de investigación es investigación."
+  },
+  {
+    "id": 46,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "El siguiente titular, representa una actividad universitaria de nuestra universidad de qué tipo: \"Niños de Centros Comunitarios y Casitas del Saber visitarán la Universidad\"",
+    "opciones": ["Investigación", "Cooperación", "Internacionalización", "Extensión"],
+    "correcta": 3,
+    "explicacion": "Una actividad que vincula la universidad con la comunidad (niños de centros comunitarios) es extensión. Las otras opciones no involucran a la comunidad del entorno."
+  },
+  {
+    "id": 47,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "La función de extensión en UNNOBA tendrá como objetivo la interacción con la sociedad para el análisis de las necesidades y problemáticas de la comunidad, promoviendo el desarrollo social, cultural y artístico; a tal fin podrá desarrollar las tareas que considere pertinentes incentivando la participación de docentes, estudiantes y graduados.",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "Coincide con la naturaleza bidireccional de la extensión y su vínculo con la comunidad (Unidad 4), y con el Estatuto, que incorpora los ideales de la Reforma (Unidad 3)."
+  },
+  {
+    "id": 48,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "Las universidades nacionales deben fortalecer su participación en la formulación y ejecución de políticas públicas y en los procesos de articulación con los diferentes niveles del Estado en el territorio, llámese nacional, provincial o municipal.",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "La Unidad 4 dice que la extensión es el canal principal para articular con el Estado (municipal, provincial y nacional) en la agenda pública y la formulación de políticas públicas."
+  },
+  {
+    "id": 49,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "La sociedad debe exigir que la universidad sea el semillero donde se gesten soluciones y modelos de intervención a las problemáticas locales, regionales o nacionales. En la universidad los estudiantes deben mirar con ojos críticos las problemáticas sociales y crear soluciones que beneficien a la sociedad.",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "Es coherente con el compromiso social de la extensión y con el fomento del pensamiento crítico y del compromiso público (Unidad 4)."
+  },
+  {
+    "id": 50,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "La misión social de la universidad no debe ser atender a las demandas de la comunidad",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 1,
+    "explicacion": "Es falso. La Reforma incorporó la extensión para vincular la universidad con la sociedad, y Langer advierte contra la mercantilización que desplaza ese rol social."
+  },
+  {
+    "id": 51,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "La tendencia de la investigación en la Universidad implica: Indica la/s opción/es correcta/s",
+    "opciones": [
+      "Apuntar a resolver las problemáticas de una comunidad",
+      "Generar nuevas tecnologías",
+      "Investigar sin considerar el contexto socioeconómico de la región y el país",
+      "Atender a los problemas socioeconómicos de la región"
+    ],
+    "correcta": [0, 1, 3],
+    "explicacion": "Langer (Unidad 4) recoge la postura de una ciencia integrada a los problemas nacionales (Varsavsky) y del modo 2 de producción de conocimiento, orientado a problemas específicos. Investigar sin considerar el contexto contradice esa tendencia."
+  },
+  {
+    "id": 52,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "LA INVESTIGACIÓN, SE ENCARGA DE LA GENERACIÓN DE NUEVOS CONOCIMIENTOS Y TECNOLOGÍA.",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "La investigación es la función de generar conocimiento y tecnología (docencia transmite y extensión vincula con la comunidad)."
+  },
+  {
+    "id": 53,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "Tiene por fin ampliar el conocimiento sin perseguir, en principio, ninguna aplicación práctica.",
+    "opciones": ["Investigación Básica", "Vinculación tecnológica", "Ninguna es correcta", "Investigación aplicada"],
+    "correcta": 0,
+    "explicacion": "La investigación básica busca ampliar el conocimiento sin aplicación práctica inmediata. La aplicada persigue un objetivo concreto y la vinculación tecnológica es otra cosa. Esta definición no está en el resumen: surge de la captura."
+  },
+  {
+    "id": 54,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "Investigación para adquirir nuevos conocimientos, orientada a la consecución de un logro u objetivo.",
+    "opciones": ["Investigación aplicada", "Ninguna es correcta", "Investigación Básica", "Vinculación tecnológica"],
+    "correcta": 0,
+    "explicacion": "La investigación aplicada es la que se orienta a un objetivo práctico. La básica no persigue aplicación inmediata. Esta definición surge de la captura, no del resumen."
+  },
+  {
+    "id": 55,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "Vincula las funciones de la Universidad según corresponda: Generar nuevos conocimientos y tecnología / Transmitir conocimientos y formación de profesionales / Preservar el patrimonio cultural y sostener la función social",
+    "opciones": ["Función Investigación", "Función Enseñanza", "Función Extensión"],
+    "correcta": [0, 1, 2],
+    "explicacion": "Las funciones tradicionales son docencia (enseñanza), investigación y extensión (Unidad 4). La extensión es la que sostiene el compromiso social y el vínculo con la comunidad y su cultura."
+  },
+  {
+    "id": 56,
+    "unidad": "Unidad 4",
+    "fuente": "Parcial",
+    "pregunta": "Escribe la función de la Universidad con la que se vincula el siguiente título de Noticias Universitarias de la UNNOBA: \"Nuevas estrategias para promover la investigación científica en el contexto actual\" (respuesta abierta)",
+    "opciones": ["Investigación"],
+    "correcta": 0,
+    "explicacion": "El título habla de promover la investigación científica, por lo que corresponde a la función de investigación. El alumno escribió 'Crear, transmitir, preservar y transferir el conocimiento', que es demasiado general y fue marcado incorrecto."
+  },
+  {
+    "id": 57,
+    "unidad": "Unidad 5",
+    "fuente": "Parcial",
+    "pregunta": "Es el proceso de introducción de la dimensión internacional en la cultura y estrategia institucional, en las funciones de formación, investigación y extensión y en la proyección de la oferta y las capacidades de la universidad.",
+    "opciones": ["Vinculación Tecnológica", "Ninguna es correcta", "Cooperación", "Internacionalización"],
+    "correcta": 3,
+    "explicacion": "Sebastián (Unidad 5) define la internacionalización como un proceso estratégico que incorpora estándares internacionales hacia adentro y proyecta la oferta hacia afuera. La cooperación es un instrumento operativo de ese proceso y la vinculación tecnológica es otro concepto."
+  },
+  {
+    "id": 58,
+    "unidad": "Unidad 5",
+    "fuente": "Parcial",
+    "pregunta": "Hace a la articulación entre el Estado, la ciencia y el sector productivo, coordinando todas las actividades relacionadas con la transferencia de conocimientos generados hacia el entramado social y productivo.",
+    "opciones": ["Internacionalización", "Cooperación", "Ninguna es correcta", "Vinculación Tecnológica"],
+    "correcta": 3,
+    "explicacion": "Langer vincula la 'vinculación tecnológica' con la transferencia de conocimiento al sector productivo (UVT, ley 23.877). La internacionalización y la cooperación se refieren a la dimensión internacional y a los convenios entre instituciones."
+  },
+  {
+    "id": 59,
+    "unidad": "Unidad 5",
+    "fuente": "Parcial",
+    "pregunta": "¿Cuáles de las siguientes actividades pueden considerarse de cooperación universitaria? Indica la/s opcion/es correcta/s:",
+    "opciones": [
+      "Intercambio académico de profesores",
+      "Reunión entre profesores de Junín y Pergamino",
+      "Acuerdos bilaterales, multilaterales o regionales",
+      "Tutorías virtuales",
+      "Proyectos de investigación conjunta con otra universidad",
+      "Programa PEPSAM"
+    ],
+    "correcta": [0, 2, 4],
+    "explicacion": "La cooperación interuniversitaria incluye convenios entre pares, movilidad e investigación conjunta, con objetivos académicos y científicos (Unidad 5). Una reunión local, las tutorías virtuales y el programa PEPSAM no encajan en esa definición."
+  },
+  {
+    "id": 60,
+    "unidad": "Unidad 5",
+    "fuente": "Parcial",
+    "pregunta": "Indica Verdadero o Falso: La internacionalización de las universidades es el proceso de introducción de la dimensión nacional en la cultura y la estrategia institucional",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 1,
+    "explicacion": "Es falso porque dice 'dimensión nacional' en lugar de 'dimensión internacional'."
+  },
+  {
+    "id": 61,
+    "unidad": "Unidad 1",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "¿Qué sostenía el postulado de Reforma Universitaria 'Calidad de la enseñanza'?",
+    "opciones": [
+      "Que había que modernizar los métodos de enseñanza, oponiéndose a las metodologías tradicionales que obstruían el acceso al saber",
+      "Que los planes de estudio eran obsoletos y no atendían a la nueva ciencia, por lo tanto había que actualizarlos según las necesidades de la sociedad",
+      "Que los docentes debían concursar sus cargos para conservarlos",
+      "Todas las anteriores son correctas"
+    ],
+    "correcta": [0, 1, 2],
+    "explicacion": "El postulado de Calidad de la enseñanza englobaba las tres ideas: modernización de métodos, actualización de planes de estudio y concursos docentes. Las tres aparecen en el cuestionario del PDF y son coherentes con la crítica de la Reforma a la enseñanza escolástica y dogmática (Unidad 1)."
+  },
+  {
+    "id": 62,
+    "unidad": "Unidad 1",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "El contexto de la Reforma Universitaria se caracterizaba por:",
+    "opciones": [
+      "Un gobierno consagrado por primera vez por el sufragio universal, obligatorio y secreto, como resultado de las primeras elecciones libres y sin fraude de la historia argentina",
+      "Un proceso de apertura social a nuevos sectores y el ascenso político de las clases medias",
+      "Un proceso de estancamiento económico y retroceso industrial",
+      "Una fuerte intervención clerical en las universidades sin ningún cuestionamiento social"
+    ],
+    "correcta": [0, 1],
+    "explicacion": "El cuestionario del PDF identifica dos rasgos: el sufragio universal (Ley Sáenz Peña) y el ascenso de las clases medias. Coincide con la Unidad 1. Las opciones sobre estancamiento económico y ausencia de cuestionamiento clerical son falsas."
+  },
+  {
+    "id": 63,
+    "unidad": "Unidad 1",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "'La universidad de Córdoba es la primera institución de estudios superiores de lo que será, siglos más tarde, el estado argentino y fue fundada por los jesuitas en el siglo XVII'. Indica Verdadero o Falso.",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "El cuestionario del PDF afirma esto como verdadero. La Unidad 1 menciona que las primeras universidades americanas incluyeron a Córdoba como parte de las fundadas por la corona española y la Iglesia en la etapa colonial (siglos XVI-XVIII), y el resumen de la Unidad 3 precisa que fue fundada por los jesuitas."
+  },
+  {
+    "id": 64,
+    "unidad": "Unidad 1",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "'Las universidades desde sus orígenes no tenían como finalidad resolver problemas de la vida cotidiana'. Indica Verdadero o Falso.",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "El cuestionario del PDF lo marca como verdadero. Las universidades medievales transmitían conocimientos para organizar una sociedad cristiana (pregunta id 5); resolver problemas prácticos es un objetivo que aparece recién con los modelos del s. XIX y con la extensión de la Reforma de 1918."
+  },
+  {
+    "id": 65,
+    "unidad": "Unidad 1",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "'La reforma incorporó la extensión universitaria como una de las misiones de la universidad latinoamericana. Así, a las funciones tradicionales de la universidad, como la docencia y la investigación, se incorpora un nuevo propósito para vincularse de modo más estrecho con la sociedad'. Indica Verdadero o Falso.",
+    "opciones": ["Verdadero", "Falso"],
+    "correcta": 0,
+    "explicacion": "La Unidad 4 (Itoiz) confirma que la extensión se incorporó plenamente con la Reforma de 1918, sumándose a la docencia y la investigación como tercera función sustantiva."
+  },
+  {
+    "id": 66,
+    "unidad": "Unidad 1",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "¿Cuál de los dos modelos de universidades europeas se desarrolló bajo el criterio de la formación de profesionales?",
+    "opciones": [
+      "El Napoleónico (modelo francés)",
+      "El Humboldtiano (modelo alemán)",
+      "Ambos modelos por igual",
+      "Ninguno de los dos"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 1 es explícita: el modelo napoleónico concibió la universidad como institución estatal enfocada en la formación profesionalista y el otorgamiento de títulos habilitantes. El humboldtiano priorizó la investigación científica."
+  },
+  {
+    "id": 67,
+    "unidad": "Unidad 2",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "Según Ornelas Delgado, ¿cuáles son las tres dimensiones inseparables de la autonomía universitaria?",
+    "opciones": [
+      "Académica, administrativa y legislativa",
+      "Política, económica y social",
+      "Docente, investigativa y extensionista",
+      "Financiera, patrimonial y presupuestaria"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 2 define las tres dimensiones: académica (libertad de enseñanza, investigación y difusión), administrativa (autogestión y aplicación de recursos) y legislativa (facultad de dictar su propio ordenamiento interno)."
+  },
+  {
+    "id": 68,
+    "unidad": "Unidad 2",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "Según Ornelas Delgado, defender la autonomía en el contexto contemporáneo implica oponerse a las políticas neoliberales que pretenden:",
+    "opciones": [
+      "Reducir la educación a una mercancía o limitarla al adiestramiento técnico según las demandas del mercado",
+      "Ampliar la matrícula universitaria y el acceso gratuito",
+      "Fortalecer el cogobierno tripartito con participación estudiantil",
+      "Crear nuevas carreras orientadas a las ciencias sociales"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 2 dice explícitamente que defender la autonomía exige oponerse a las políticas neoliberales que reducen la educación a una mercancía o la limitan al adiestramiento técnico según las demandas del mercado."
+  },
+  {
+    "id": 69,
+    "unidad": "Unidad 2",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "¿Cuál es el enfoque teórico que utiliza Facundo Solanas para explicar por qué las prácticas de acreditación se volvieron indispensables y difíciles de suprimir en Argentina?",
+    "opciones": [
+      "La dependencia al camino (path dependence) del neoinstitucionalismo",
+      "El estructuralismo latinoamericano",
+      "La teoría crítica de la educación",
+      "El funcionalismo sistémico"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 2 menciona explícitamente el enfoque neoinstitucionalista de la 'dependencia al camino' (path dependence) para explicar cómo las prácticas de acreditación generaron mecanismos de retroalimentación que las hicieron indispensables."
+  },
+  {
+    "id": 70,
+    "unidad": "Unidad 2",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "Según el análisis de Solanas sobre los proyectos de ley presentados en el Congreso argentino entre 2003 y 2011, el debate legislativo sobre la acreditación universitaria buscaba:",
+    "opciones": [
+      "Eliminar la función evaluadora de la CONEAU",
+      "Modificar la composición de sus miembros y el peso relativo de las universidades públicas, el Poder Ejecutivo y las instituciones privadas",
+      "Reemplazar la CONEAU por un organismo internacional",
+      "Transferir la función evaluadora a cada universidad"
+    ],
+    "correcta": 1,
+    "explicacion": "La Unidad 2 dice que existe consenso unánime sobre mantener un organismo de acreditación; los debates no buscan eliminarlo sino modificar la composición de sus miembros y el peso relativo de los distintos sectores."
+  },
+  {
+    "id": 71,
+    "unidad": "Unidad 3",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "Según el Estatuto de la UNNOBA, ¿cómo se concibe la educación superior?",
+    "opciones": [
+      "Como un derecho humano, universal y bien público social, garantizando la gratuidad de las carreras de pregrado y grado",
+      "Como un servicio que el Estado presta de manera condicionada según el rendimiento académico",
+      "Como una inversión económica que debe ser cofinanciada por el estudiante",
+      "Como un privilegio reservado a quienes superen instancias selectivas de ingreso"
+    ],
+    "correcta": 0,
+    "explicacion": "El resumen de la Unidad 3 dice textualmente que el Estatuto concibe la educación superior como un derecho humano, universal y bien público social, garantizando la gratuidad de las carreras de pregrado y grado."
+  },
+  {
+    "id": 72,
+    "unidad": "Unidad 3",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "¿Cuál es la función de los Departamentos dentro de la estructura académica de la UNNOBA?",
+    "opciones": [
+      "Organizar y dictar las carreras de pregrado y grado",
+      "Agrupar a los docentes por disciplina y prestar servicios académicos a las Escuelas",
+      "Coordinar las carreras de posgrado",
+      "Gestionar el presupuesto de cada unidad académica"
+    ],
+    "correcta": 1,
+    "explicacion": "La Unidad 3 distingue claramente: las Escuelas organizan y dictan las carreras, mientras que los Departamentos son unidades disciplinarias que agrupan a los docentes y prestan servicios académicos a las Escuelas."
+  },
+  {
+    "id": 73,
+    "unidad": "Unidad 3",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "¿Qué caracteriza al régimen docente ordinario en la UNNOBA según su Estatuto?",
+    "opciones": [
+      "El ingreso se realiza mediante concurso público y abierto de antecedentes y oposición; los profesores duran 7 años en sus funciones",
+      "El ingreso es por designación directa del Rector; los profesores duran 4 años",
+      "El ingreso se realiza por concurso interno solo para docentes ya contratados; duran 5 años",
+      "El ingreso es automático para graduados de la propia universidad; duran 10 años"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 3 indica que el ingreso a la carrera docente ordinaria se realiza mediante concurso público y abierto de antecedentes y oposición, y que los profesores ordinarios duran 7 años en sus funciones."
+  },
+  {
+    "id": 74,
+    "unidad": "Unidad 3",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "Según el Reglamento de alumnos de la UNNOBA, ¿qué se requiere para conservar la condición de alumno regular?",
+    "opciones": [
+      "Aprobar como mínimo dos materias por año lectivo y no superar el doble del tiempo de duración de la carrera",
+      "Aprobar como mínimo tres materias por año lectivo y mantener un promedio de 6",
+      "No reprobar más de dos materias por año y mantener asistencia al 75% de las clases",
+      "Inscribirse en todas las materias del año y rendir al menos un parcial por materia"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 3 indica exactamente: para conservar la regularidad se requiere aprobar como mínimo dos materias por año lectivo y no superar el doble del tiempo de duración de la carrera."
+  },
+  {
+    "id": 75,
+    "unidad": "Unidad 3",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "El Protocolo de acción institucional ante situaciones de violencia o discriminación de género de la UNNOBA (Res. CS 2439/2023) aplica a:",
+    "opciones": [
+      "Toda la comunidad universitaria: docentes, no docentes, autoridades, estudiantes y personal contratado, en todos los ámbitos e instalaciones",
+      "Solo a los estudiantes y docentes en situaciones dentro del aula",
+      "Solo al personal no docente y administrativo",
+      "Solo a los casos donde la víctima presenta una denuncia formal ante la justicia"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 3 es explícita: el protocolo aplica a toda la comunidad universitaria (docentes, no docentes, autoridades, estudiantes y personal contratado) en todos los ámbitos e instalaciones."
+  },
+  {
+    "id": 76,
+    "unidad": "Unidad 3",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "¿Cuáles son los principios de actuación que garantiza el Protocolo de género de la UNNOBA?",
+    "opciones": [
+      "Asesoramiento gratuito, estricta confidencialidad, respeto por la voluntad de la persona afectada, no revictimización y acompañamiento integral",
+      "Denuncia obligatoria ante la justicia, publicidad del proceso y sanción inmediata del acusado",
+      "Intervención exclusiva del Rector y resolución en menos de 72 horas",
+      "Mediación obligatoria entre las partes como primer paso, sin posibilidad de medidas cautelares"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 3 enumera textualmente esos principios: asesoramiento gratuito, confidencialidad, respeto a la voluntad de la persona afectada, no revictimización y acompañamiento integral."
+  },
+  {
+    "id": 77,
+    "unidad": "Unidad 4",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "Según Langer, ¿qué postura sostenía Risieri Frondizi respecto al rol de la universidad y la ciencia?",
+    "opciones": [
+      "Que la investigación científica y la planificación estatal del desarrollo son indispensables para resolver los problemas del subdesarrollo",
+      "Que la ciencia debía desvincularse del Estado y funcionar de manera autónoma respecto a la política",
+      "Que la universidad debía priorizar la extensión comunitaria por encima de la investigación",
+      "Que la ciencia importada de los países centrales era suficiente para el desarrollo nacional"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 4 dice que Frondizi postuló que la investigación científica y la planificación estatal del desarrollo son indispensables para resolver los problemas del subdesarrollo."
+  },
+  {
+    "id": 78,
+    "unidad": "Unidad 4",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "¿Cuál era la crítica principal de Oscar Varsavsky al 'cientificismo' en la universidad argentina?",
+    "opciones": [
+      "Que importaba agendas de investigación externas e instó a construir una ciencia autónoma integrada a los problemas nacionales",
+      "Que la ciencia estaba excesivamente orientada a resolver problemas locales sin proyección internacional",
+      "Que la universidad invertía demasiado en extensión en detrimento de la investigación básica",
+      "Que el sistema de becas favorecía a los investigadores nacionales por sobre los extranjeros"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 4 dice que Varsavsky criticó el cientificismo por importar agendas externas e instó a construir una ciencia autónoma integrada a los problemas nacionales y orientada a la liberación nacional."
+  },
+  {
+    "id": 79,
+    "unidad": "Unidad 4",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "Según Langer, ¿cuál fue el efecto de las reformas neoliberales de los años 90 sobre la extensión universitaria tradicional?",
+    "opciones": [
+      "Tendió a reducirse o asimilarse a la vinculación universidad-empresa, transformando el compromiso social en prestaciones de servicios especializados",
+      "Se fortaleció como función central de las universidades públicas con mayor financiamiento estatal",
+      "Se independizó completamente del Estado y pasó a ser gestionada por organizaciones estudiantiles",
+      "Se orientó exclusivamente a actividades culturales y artísticas, dejando de lado los proyectos sociales"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 4 dice que la extensión tradicional tendió a reducirse o asimilarse a la vinculación universidad-empresa, transformando el compromiso social en prestaciones de servicios especializados o uso de laboratorios para ahorro de costos del sector privado."
+  },
+  {
+    "id": 80,
+    "unidad": "Unidad 4",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "Según Langer, ¿qué describe la transición del 'Modo 1' al 'Modo 2' de producción del conocimiento?",
+    "opciones": [
+      "El pasaje de la investigación académica disciplinar tradicional a una lógica multidisciplinar orientada a la resolución de problemas específicos negociados con el entorno",
+      "El pasaje de la investigación aplicada a la investigación básica como prioridad universitaria",
+      "El desplazamiento de la investigación privada hacia el ámbito universitario público",
+      "El reemplazo de los investigadores individuales por equipos interdepartamentales sin vinculación externa"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 4 describe esa transición: del Modo 1 (investigación académica disciplinar) al Modo 2 (lógica multidisciplinar orientada a problemas específicos negociados con el entorno)."
+  },
+  {
+    "id": 81,
+    "unidad": "Unidad 5",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "Según Sebastián, ¿cuáles son las dos 'caras' o dimensiones estratégicas de la internacionalización universitaria?",
+    "opciones": [
+      "Hacia el interior: incorporar estándares internacionales para mejorar calidad; hacia el exterior: proyectar la oferta educativa y ganar presencia en el espacio supranacional",
+      "Hacia arriba: vincularse con organismos multilaterales; hacia abajo: impactar en el sistema de educación básica",
+      "Hacia lo público: fortalecer las universidades estatales; hacia lo privado: atraer inversión extranjera",
+      "Hacia lo académico: fomentar la movilidad docente; hacia lo administrativo: adoptar sistemas de gestión internacionales"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 5 define las dos caras: hacia el interior (incorporar estándares internacionales para mejorar calidad, pertinencia y cultura institucional) y hacia el exterior (proyectar la oferta educativa, ganar presencia y recursos en el espacio supranacional)."
+  },
+  {
+    "id": 82,
+    "unidad": "Unidad 5",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "¿Qué ejemplos menciona la Unidad 5 como casos de convergencia y compatibilidad en la internacionalización universitaria?",
+    "opciones": [
+      "El Espacio Europeo de Educación Superior (Declaración de Bolonia) y el Mercosur Educativo",
+      "El Banco Mundial y el Fondo Monetario Internacional",
+      "La UNESCO y la OCDE",
+      "El Programa Erasmus y la red Augm"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 5 menciona explícitamente el Espacio Europeo de Educación Superior (Declaración de Bolonia) y el Mercosur Educativo como ejemplos de armonización de sistemas para facilitar el reconocimiento de títulos y la movilidad."
+  },
+  {
+    "id": 83,
+    "unidad": "Unidad 5",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "Según Sebastián, ¿qué distingue a la 'cooperación sensu stricto' de la 'cooperación para el desarrollo'?",
+    "opciones": [
+      "La primera es una relación simétrica entre pares con objetivos académicos y científicos; la segunda es asimétrica y está enfocada en el fortalecimiento institucional y la transferencia de tecnología hacia países de menor desarrollo",
+      "La primera implica movilidad exclusivamente estudiantil; la segunda implica movilidad exclusivamente docente",
+      "La primera se da solo entre universidades públicas; la segunda involucra también a universidades privadas",
+      "La primera financia proyectos de investigación básica; la segunda financia infraestructura edilicia"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 5 distingue claramente: la cooperación interuniversitaria (sensu stricto) es simétrica entre pares con objetivos académicos y científicos; la cooperación para el desarrollo es asimétrica, orientada al fortalecimiento institucional, la formación de recursos humanos y la transferencia de tecnología en países de menor desarrollo."
+  },
+  {
+    "id": 84,
+    "unidad": "Unidad 5",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "Según Langer, ¿qué leyes de los años 90 impulsaron la vinculación tecnológica y la búsqueda de financiamiento privado en las universidades argentinas?",
+    "opciones": [
+      "La Ley de Educación Superior (Nº 24.521) y la Ley de Promoción de la Innovación Tecnológica (Nº 23.877)",
+      "La Ley de Financiamiento Educativo (Nº 26.075) y la Ley de Ciencia y Tecnología (Nº 25.467)",
+      "La Ley de Educación Nacional (Nº 26.206) y el decreto de creación del CONICET",
+      "La Ley de Universidades Privadas (Nº 17.604) y la Ley de Presupuesto Universitario (Nº 24.447)"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 5 (Langer) menciona textualmente la Ley de Educación Superior (Nº 24.521) y la Ley de Promoción de la Innovación Tecnológica (Nº 23.877) como las normas que promovieron la venta de servicios y la búsqueda de financiamiento privado."
+  },
+  {
+    "id": 85,
+    "unidad": "Unidad 5",
+    "fuente": "Cuestionario de cursada",
+    "pregunta": "Según Langer, ¿cuál fue la situación de la inversión en I+D en Argentina en comparación con Brasil durante los años 90 y post-crisis de 2001?",
+    "opciones": [
+      "Mientras Brasil logró superar el 1% del PBI en I+D, Argentina se mantuvo por debajo del 0,5%",
+      "Argentina superó a Brasil en inversión relativa en I+D gracias a las reformas neoliberales",
+      "Ambos países mantuvieron niveles similares de inversión, cercanos al 2% del PBI",
+      "Argentina igualó a Brasil recién después de la creación del Ministerio de Ciencia en 2007"
+    ],
+    "correcta": 0,
+    "explicacion": "La Unidad 5 (Langer) indica textualmente que mientras Brasil logró superar el 1% del PBI de inversión en I+D, la inversión en Argentina se mantuvo por debajo del 0,5%."
+  }
+];
+/* ============================ FIN DEL ARRAY ============================ */
+
+/* ---------- Utilidades ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const norm = s => String(s ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+const LET = 'ABCDEFGHIJ';
+const isParcial = q => norm(q.fuente) === 'parcial';
+const unidades = () => [...new Set(PREGUNTAS.map(q => q.unidad))].sort((a, b) => a.localeCompare(b, 'es', { numeric: true }));
+
+const REL_RE = /^(vincul[aá]|elegir la opci[oó]n correcta para cada)/i;
+const itemsRel = q => { const t = q.pregunta, i = t.indexOf(': '); return (i >= 0 ? t.slice(i + 2) : t).split(' / ').map(s => s.replace(/^\d+\)\s*/, '').trim()).filter(Boolean); };
+
+function tipoDe(q) {
+  if (q.tipo) return q.tipo;
+  if (q.opciones.length === 1) return 'abierta';
+  if (Array.isArray(q.correcta)) {
+    if (REL_RE.test(q.pregunta.trim()) && itemsRel(q).length === q.correcta.length) return 'relacionar';
+    return 'multiple';
+  }
+  return 'simple';
+}
+
+function prep(q) {
+  const tipo = tipoDe(q);
+  const order = tipo === 'abierta' ? q.opciones.map((_, i) => i) : shuffle(q.opciones.map((_, i) => i));
+  const r = { q, tipo, opts: order.map(i => q.opciones[i]) };
+  if (tipo === 'simple') r.ok = new Set([order.indexOf(q.correcta)]);
+  else if (tipo === 'multiple') r.ok = new Set(q.correcta.map(c => order.indexOf(c)));
+  else if (tipo === 'relacionar') { r.items = itemsRel(q); r.stem = q.pregunta.split(': ')[0]; r.map = q.correcta.map(c => order.indexOf(c)); }
+  return r;
+}
+
+/* ---------- Estado ---------- */
+const S = { screen: 'config', cfg: { n: 15, unidad: 'all', fuente: 'all' }, queue: [], i: 0, sel: null, done: false, lastOk: false, results: [], fresh: false };
+
+const pool = c => PREGUNTAS.filter(q =>
+  (c.unidad === 'all' || q.unidad === c.unidad) &&
+  (c.fuente === 'all' || (c.fuente === 'parcial' ? isParcial(q) : !isParcial(q))));
+
+const countFor = (k, v) => pool({ ...S.cfg, [k]: v }).length;
+
+/* ---------- Vistas ---------- */
+function vConfig() {
+  const c = S.cfg, avail = pool(c).length, n = c.n === 'all' ? avail : Math.min(c.n, avail);
+  const totalParcial = PREGUNTAS.filter(isParcial).length;
+  const totalGen = PREGUNTAS.length - totalParcial;
+
+  const pillBtn = (g, v, label, countBadge = null) => {
+    const active = String(c[g]) === String(v);
+    return `<button data-g="${g}" data-v="${esc(v)}" class="group relative flex items-center justify-between gap-2.5 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all duration-150 ${
+      active
+        ? 'bg-gradient-to-b from-amber-400 to-amber-500 text-ink border-amber-300 shadow-lg shadow-amber-500/20'
+        : 'bg-panel/80 border-line text-paper/90 hover:border-amber-400/50 hover:bg-panelHover'
+    }">
+      <span>${esc(label)}</span>
+      ${countBadge !== null ? `<span class="font-mono text-xs px-2 py-0.5 rounded-md ${
+        active ? 'bg-ink/20 text-ink font-semibold' : 'bg-ink/60 text-mute group-hover:text-paper'
+      }">${countBadge}</span>` : ''}
+    </button>`;
+  };
+
+  return `
+  <div class="fresh">
+    <!-- Top Header Card -->
+    <header class="glass-card rounded-3xl p-6 sm:p-8 mb-6 relative overflow-hidden">
+      <div class="absolute -right-12 -top-12 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="flex flex-wrap items-center gap-2 mb-3">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono uppercase tracking-wider bg-amber-500/10 text-amber-300 border border-amber-500/20">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+          UNNOBA · Banco Interactivo
+        </span>
+        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-mono bg-sky-500/10 text-sky-300 border border-sky-500/20">
+          ${PREGUNTAS.length} preguntas totales
+        </span>
+      </div>
+      <h1 class="font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-white leading-tight mb-2">${esc(TITULO)}</h1>
+      <p class="text-mute text-sm sm:text-base">${esc(SUBTITULO)}</p>
+
+      <!-- Mini Stats Bar -->
+      <div class="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-white/5">
+        <div class="bg-ink/50 border border-line/70 rounded-2xl p-3.5">
+          <p class="text-xs text-mute mb-0.5">Unidades</p>
+          <p class="font-mono text-xl font-semibold text-white">${unidades().length} <span class="text-xs font-sans font-normal text-mute">cargadas</span></p>
+        </div>
+        <div class="bg-ink/50 border border-line/70 rounded-2xl p-3.5">
+          <p class="text-xs text-mute mb-0.5">De Parciales</p>
+          <p class="font-mono text-xl font-semibold text-amber-400">${totalParcial} <span class="text-xs font-sans font-normal text-mute">oficiales</span></p>
+        </div>
+        <div class="bg-ink/50 border border-line/70 rounded-2xl p-3.5">
+          <p class="text-xs text-mute mb-0.5">Cuestionarios</p>
+          <p class="font-mono text-xl font-semibold text-sky-400">${totalGen} <span class="text-xs font-sans font-normal text-mute">de cursada</span></p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Configuration Panel -->
+    <div class="glass-card rounded-3xl p-6 sm:p-8 space-y-7">
+      <section>
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xs font-mono uppercase tracking-wider text-mute">1. Cantidad de preguntas</h2>
+          <span class="text-xs text-mute">Orden y opciones aleatorias</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          ${pillBtn('n', 15, '15 preguntas', 'Rápido')}
+          ${pillBtn('n', 30, '30 preguntas', 'Medio')}
+          ${pillBtn('n', 45, '45 preguntas', 'Largo')}
+          ${pillBtn('n', 'all', 'Todas', avail)}
+        </div>
+      </section>
+
+      <section>
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xs font-mono uppercase tracking-wider text-mute">2. Filtrar por Unidad</h2>
+        </div>
+        <div class="flex flex-wrap gap-2.5">
+          ${pillBtn('unidad', 'all', 'Todas las unidades mezcladas', countFor('unidad', 'all'))}
+          ${unidades().map(u => pillBtn('unidad', u, u, countFor('unidad', u))).join('')}
+        </div>
+      </section>
+
+      <section>
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xs font-mono uppercase tracking-wider text-mute">3. Origen de las preguntas</h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          ${pillBtn('fuente', 'all', 'Todo el banco de preguntas', countFor('fuente', 'all'))}
+          ${pillBtn('fuente', 'parcial', 'Solo Parciales Reales', countFor('fuente', 'parcial'))}
+          ${pillBtn('fuente', 'gen', 'Cuestionarios / Resúmenes', countFor('fuente', 'gen'))}
+        </div>
+      </section>
+
+      <!-- Action Footer -->
+      <div class="pt-4 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-amber-500/10 border border-amber-500/25 grid place-items-center text-amber-400 font-mono text-lg font-semibold">
+            ${n}
+          </div>
+          <div>
+            <p class="text-sm font-medium text-white">
+              ${n ? `Listo para comenzar (${n} ${n === 1 ? 'pregunta' : 'preguntas'})` : 'Sin preguntas para este filtro'}
+            </p>
+            <p class="text-xs text-mute">
+              ${n ? `${avail} disponibles con la combinación actual` : 'Probá cambiando la unidad o el origen'}
+            </p>
+          </div>
+        </div>
+        <button data-act="start" ${n ? '' : 'disabled'} class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 text-ink font-semibold text-base shadow-lg shadow-amber-500/20 transition hover:brightness-110 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed">
+          <span>Comenzar práctica</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function optHTML(r, k) {
+  const multi = r.tipo === 'multiple';
+  const sel = multi ? S.sel.has(k) : S.sel === k, ok = r.ok.has(k);
+  let cls = '', badge = '', tag = '';
+
+  if (!S.done) {
+    if (sel) {
+      cls = 'border-amber-400 bg-amber-500/15 shadow-md shadow-amber-500/5';
+      badge = 'border-amber-400 bg-amber-400 text-ink font-semibold';
+    } else {
+      cls = 'border-line bg-panel/75 hover:border-amber-400/50 hover:bg-panelHover';
+      badge = 'border-line bg-ink/70 text-mute group-hover:text-paper group-hover:border-amber-400/40';
+    }
+    if (multi) {
+      tag = `<span class="ml-auto pl-2"><span class="w-5 h-5 rounded-md border grid place-items-center text-xs ${sel ? 'border-amber-400 bg-amber-400 text-ink font-bold' : 'border-line bg-ink/50 text-transparent'}">✓</span></span>`;
+    }
+  } else if (ok && (sel || !multi)) {
+    cls = 'border-emerald-500/80 bg-emerald-500/15 shadow-md shadow-emerald-950/30';
+    badge = 'border-emerald-400 bg-emerald-400 text-ink font-bold';
+    tag = '<span class="ml-auto pl-3 shrink-0 inline-flex items-center gap-1 text-emerald-300 text-xs font-mono uppercase tracking-wider bg-emerald-500/20 px-2.5 py-1 rounded-full border border-emerald-400/30">✓ Correcta</span>';
+  } else if (ok) {
+    cls = 'border-emerald-500/70 border-dashed bg-emerald-500/10';
+    badge = 'border-emerald-400 text-emerald-300 font-semibold';
+    tag = '<span class="ml-auto pl-3 shrink-0 inline-flex items-center gap-1 text-emerald-300 text-xs font-mono bg-emerald-500/15 px-2.5 py-1 rounded-full border border-emerald-400/30">Faltó marcar</span>';
+  } else if (sel) {
+    cls = 'border-rose-500/80 bg-rose-500/15';
+    badge = 'border-rose-400 bg-rose-400 text-ink font-bold';
+    tag = '<span class="ml-auto pl-3 shrink-0 inline-flex items-center gap-1 text-rose-300 text-xs font-mono uppercase tracking-wider bg-rose-500/20 px-2.5 py-1 rounded-full border border-rose-400/30">✕ Tu elección</span>';
+  } else {
+    cls = 'border-line/40 bg-panel/30 opacity-50';
+    badge = 'border-line/50 text-mute/60';
+  }
+
+  return `<button data-opt="${k}" ${S.done ? 'disabled' : ''} class="opt-card group w-full text-left flex items-start gap-3.5 px-4 py-3.5 rounded-2xl border ${cls}">
+    <span class="shrink-0 w-7 h-7 grid place-items-center rounded-lg border font-mono text-xs transition-colors ${badge}">${LET[k] || k + 1}</span>
+    <span class="flex-1 leading-relaxed text-sm sm:text-base pt-0.5 text-paper/95">${esc(r.opts[k])}</span>${tag}</button>`;
+}
+
+function relHTML(r) {
+  return r.items.map((it, i) => {
+    const v = S.sel[i], good = v === r.map[i];
+    const box = !S.done
+      ? 'border-line bg-panel/80'
+      : good
+        ? 'border-emerald-500/70 bg-emerald-500/10'
+        : 'border-rose-500/70 bg-rose-500/10';
+    return `<div class="rounded-2xl border p-4 transition ${box}">
+      <div class="flex items-start gap-2.5 mb-2.5">
+        <span class="shrink-0 w-6 h-6 rounded-md bg-ink/80 border border-line font-mono text-xs text-amber-400 grid place-items-center">${i + 1}</span>
+        <p class="leading-snug text-sm sm:text-base font-medium text-paper pt-0.5">${esc(it)}</p>
+      </div>
+      <select data-rel="${i}" ${S.done ? 'disabled' : ''} class="w-full bg-ink border border-line hover:border-amber-400/50 rounded-xl px-3.5 py-2.5 text-sm text-paper transition">
+        <option value="">Seleccioná la opción correspondiente...</option>
+        ${r.opts.map((o, k) => `<option value="${k}" ${v === k ? 'selected' : ''}>${LET[k]}. ${esc(o)}</option>`).join('')}
+      </select>
+      ${S.done && !good ? `<p class="text-xs font-mono text-emerald-300 mt-2.5 flex items-center gap-1.5"><span>✓ Correspondía:</span> <span class="font-sans font-medium">${esc(r.opts[r.map[i]])}</span></p>` : ''}</div>`;
+  }).join('');
+}
+
+function vExam() {
+  const r = S.queue[S.i], q = r.q, tot = S.queue.length, pct = ((S.i + (S.done ? 1 : 0)) / tot) * 100;
+  const okCount = S.results.filter(x => x && x.ok).length;
+  const failCount = S.results.filter(x => x && !x.ok).length;
+
+  let body;
+  if (r.tipo === 'simple' || r.tipo === 'multiple') body = r.opts.map((_, k) => optHTML(r, k)).join('');
+  else if (r.tipo === 'relacionar') body = relHTML(r);
+  else body = `<input id="open" type="text" autocomplete="off" value="${esc(S.sel)}" ${S.done ? 'disabled' : ''} placeholder="Escribí tu respuesta y presioná Enter..." class="w-full bg-ink/90 border border-line focus:border-amber-400 rounded-2xl px-4 py-3.5 text-base">
+    ${S.done ? `<p class="text-sm mt-2.5 font-medium ${S.lastOk ? 'text-emerald-300' : 'text-rose-300'}">Respuesta esperada: <span class="underline decoration-dotted">${esc(r.opts[0])}</span></p>` : ''}`;
+
+  const tipoBadge = {
+    simple: ['Opción única', 'bg-white/5 text-mute border-white/10'],
+    multiple: ['Selección múltiple · Marcá todas las correctas', 'bg-amber-500/15 text-amber-300 border-amber-500/30'],
+    relacionar: ['Vincular conceptos', 'bg-purple-500/15 text-purple-300 border-purple-500/30'],
+    abierta: ['Respuesta corta escrita', 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30']
+  }[r.tipo];
+
+  const fuenteBadge = isParcial(q)
+    ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+    : 'bg-sky-500/15 text-sky-300 border-sky-500/30';
+
+  const btn = (act, txt, extra = '') => `<button data-act="${act}" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-ink font-semibold shadow-lg shadow-amber-500/20 transition hover:brightness-110 active:scale-[0.99] ${extra}">${txt}</button>`;
+
+  return `
+  <!-- Top Progress Header -->
+  <div class="glass-card rounded-2xl p-4 mb-5">
+    <div class="flex flex-wrap items-center justify-between gap-2 text-xs font-mono mb-2.5">
+      <div class="flex items-center gap-2">
+        <span class="px-2.5 py-1 rounded-lg bg-ink/80 border border-line text-paper font-semibold">Pregunta ${S.i + 1} / ${tot}</span>
+        <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-300">✓ ${okCount}</span>
+        <span class="px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/25 text-rose-300">✕ ${failCount}</span>
+      </div>
+      <button data-act="quit" class="px-2.5 py-1 rounded-lg border border-transparent hover:border-line hover:bg-ink/60 text-mute hover:text-paper transition">
+        ✕ Salir al menú
+      </button>
+    </div>
+    <div class="h-2 rounded-full bg-ink overflow-hidden p-0.5 border border-line/60">
+      <div class="h-full rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-emerald-400 transition-all duration-300" style="width:${pct}%"></div>
+    </div>
+  </div>
+
+  <!-- Main Question Card -->
+  <div id="card" class="glass-card rounded-3xl p-6 sm:p-8 ${S.fresh ? 'fresh' : ''}">
+    <!-- Metadata Badges -->
+    <div class="flex flex-wrap items-center gap-2 mb-4 text-xs font-mono">
+      <span class="px-2.5 py-1 rounded-full border border-line bg-ink/60 text-paper font-medium">${esc(q.unidad)}</span>
+      <span class="px-2.5 py-1 rounded-full border ${fuenteBadge}">${esc(q.fuente)}</span>
+      <span class="px-2.5 py-1 rounded-full border ${tipoBadge[1]}">${tipoBadge[0]}</span>
+      <span class="ml-auto text-mute">#${q.id}</span>
+    </div>
+
+    <!-- Question Text -->
+    <h2 class="font-serif text-xl sm:text-2xl leading-relaxed text-white font-medium mb-6">${esc(r.tipo === 'relacionar' ? r.stem : q.pregunta)}</h2>
+
+    <!-- Options Container -->
+    <div class="space-y-3">${body}</div>
+
+    <!-- Immediate Explanation Feedback -->
+    ${S.done ? `
+    <div class="fresh mt-6 rounded-2xl border p-5 ${S.lastOk ? 'border-emerald-500/50 bg-gradient-to-br from-emerald-500/15 to-emerald-950/20' : 'border-rose-500/50 bg-gradient-to-br from-rose-500/15 to-rose-950/20'}">
+      <div class="flex items-center gap-2.5 mb-2">
+        <span class="w-6 h-6 rounded-full grid place-items-center text-xs font-bold ${S.lastOk ? 'bg-emerald-400 text-ink' : 'bg-rose-400 text-ink'}">${S.lastOk ? '✓' : '✕'}</span>
+        <p class="font-semibold text-base ${S.lastOk ? 'text-emerald-300' : 'text-rose-300'}">${S.lastOk ? '¡Respuesta correcta!' : 'Respuesta incorrecta'}</p>
+      </div>
+      <p class="text-sm sm:text-base leading-relaxed text-paper/90 pl-8">${esc(q.explicacion)}</p>
+    </div>` : ''}
+
+    <!-- Card Footer Controls -->
+    <div class="flex flex-wrap items-center justify-between gap-3 mt-7 pt-5 border-t border-white/10">
+      <p id="msg" class="text-sm font-medium text-amber-300 min-h-[1.25rem]"></p>
+      <div class="ml-auto">
+        ${S.done
+          ? btn('next', `${S.i + 1 >= tot ? 'Ver resultados finales' : 'Siguiente pregunta'} <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>`)
+          : (r.tipo === 'simple' ? '<span class="text-xs text-mute">Hacé clic en una opción para responder</span>' : btn('check', 'Comprobar respuesta'))}
+      </div>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Helper -->
+  <div class="hidden sm:flex items-center justify-center gap-4 text-xs text-mute mt-5">
+    <span><kbd>1</kbd>–<kbd>9</kbd> o <kbd>A</kbd>–<kbd>I</kbd> marcar opción</span>
+    <span>·</span>
+    <span><kbd>Enter</kbd> o <kbd>→</kbd> comprobar / siguiente</span>
+  </div>`;
+}
+
+function vResult() {
+  const tot = S.results.length, ok = S.results.filter(r => r.ok).length, pct = tot ? Math.round(ok / tot * 100) : 0;
+  const col = pct >= 70 ? '#34d399' : pct >= 50 ? '#eab308' : '#fb7185';
+  const statusTxt = pct >= 80 ? '¡Excelente dominio!' : pct >= 60 ? 'Aprobado · Buen ritmo' : 'A repasar los puntos flojos';
+  const statusBadge = pct >= 70 ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' : pct >= 50 ? 'bg-amber-500/15 text-amber-300 border-amber-500/30' : 'bg-rose-500/15 text-rose-300 border-rose-500/30';
+
+  const by = {};
+  S.results.forEach(r => { const u = by[r.q.unidad] ??= { ok: 0, t: 0 }; u.t++; if (r.ok) u.ok++; });
+  const rows = Object.keys(by).sort((a, b) => a.localeCompare(b, 'es', { numeric: true })).map(u => {
+    const p = Math.round(by[u].ok / by[u].t * 100);
+    const c = p >= 70 ? 'from-emerald-400 to-emerald-500' : p >= 50 ? 'from-amber-400 to-amber-500' : 'from-rose-400 to-rose-500';
+    return `<div class="bg-ink/50 border border-line/80 rounded-2xl p-4">
+      <div class="flex justify-between items-center text-sm mb-2">
+        <span class="font-medium text-white">${esc(u)}</span>
+        <span class="font-mono text-xs text-mute"><strong class="text-paper">${by[u].ok}</strong> / ${by[u].t} aciertos (${p}%)</span>
+      </div>
+      <div class="h-2.5 rounded-full bg-ink overflow-hidden border border-line/50">
+        <div class="h-full rounded-full bg-gradient-to-r ${c} transition-all duration-500" style="width:${p}%"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const fails = tot - ok;
+  const failedList = S.results.filter(r => !r.ok);
+
+  return `
+  <div class="fresh space-y-6">
+    <div class="glass-card rounded-3xl p-6 sm:p-8">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+        <h1 class="font-serif text-3xl text-white font-semibold">Resumen del intento</h1>
+        <span class="px-3 py-1 rounded-full text-xs font-mono border ${statusBadge}">${statusTxt}</span>
+      </div>
+
+      <!-- Score Hero -->
+      <div class="flex flex-col sm:flex-row items-center gap-7 p-6 rounded-2xl bg-ink/60 border border-line mb-8">
+        <div class="w-32 h-32 rounded-full grid place-items-center shrink-0 shadow-inner" style="background:conic-gradient(${col} ${pct}%, #1e2434 0)">
+          <div class="w-24 h-24 rounded-full bg-ink grid place-items-center">
+            <span class="font-mono text-3xl font-bold text-white">${pct}%</span>
+          </div>
+        </div>
+        <div class="text-center sm:text-left space-y-2 flex-1">
+          <p class="text-2xl sm:text-3xl font-semibold text-white">${ok} de ${tot} respuestas correctas</p>
+          <p class="text-sm text-mute">Respondidas correctamente en esta sesión de práctica.</p>
+          <div class="flex flex-wrap justify-center sm:justify-start gap-2 pt-2">
+            <span class="px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-mono">✓ ${ok} Aciertos</span>
+            <span class="px-3 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs font-mono">✕ ${fails} Errores</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Breakdown by Unit -->
+      <h2 class="text-xs font-mono uppercase tracking-wider text-mute mb-3">Desglose de rendimiento por unidad</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">${rows}</div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap gap-3 pt-4 border-t border-white/10">
+        ${fails ? `<button data-act="retry" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-ink font-semibold shadow-lg shadow-amber-500/20 transition hover:brightness-110">
+          <span>Reintentar solo las falladas (${fails})</span>
+        </button>` : ''}
+        <button data-act="home" class="px-6 py-3 rounded-xl border border-line bg-panel hover:bg-panelHover hover:border-amber-400/50 text-paper font-medium transition">
+          Configurar nuevo examen
+        </button>
+      </div>
+    </div>
+
+    ${fails ? `
+    <!-- Failed Questions Review Card -->
+    <div class="glass-card rounded-3xl p-6 sm:p-8">
+      <h2 class="font-serif text-2xl text-white font-semibold mb-1">Repaso rápido de errores (${fails})</h2>
+      <p class="text-sm text-mute mb-5">Revisá las explicaciones de las preguntas que fallaste antes de volver a intentarlas.</p>
+      <div class="space-y-4">
+        ${failedList.map(({ q }) => {
+          const corrTxt = Array.isArray(q.correcta)
+            ? q.correcta.map(idx => q.opciones[idx]).join(' · ')
+            : q.opciones[q.correcta];
+          return `<div class="rounded-2xl border border-rose-500/30 bg-ink/50 p-4 sm:p-5">
+            <div class="flex items-center gap-2 text-xs font-mono text-mute mb-2">
+              <span class="px-2 py-0.5 rounded bg-panel border border-line text-paper">${esc(q.unidad)}</span>
+              <span>#${q.id}</span>
+            </div>
+            <p class="font-serif text-base sm:text-lg text-white mb-2.5">${esc(q.pregunta)}</p>
+            <p class="text-xs sm:text-sm text-emerald-300 font-medium mb-2">✓ Respuesta correcta: ${esc(corrTxt)}</p>
+            <p class="text-xs sm:text-sm text-mute leading-relaxed border-t border-white/5 pt-2.5">${esc(q.explicacion)}</p>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>` : ''}
+  </div>`;
+}
+
+function render() {
+  $('#app').innerHTML = { config: vConfig, exam: vExam, result: vResult }[S.screen]();
+  S.fresh = false;
+  if (S.screen === 'exam') { const r = S.queue[S.i]; if (r.tipo === 'abierta' && !S.done) $('#open')?.focus(); }
+}
+
+/* ---------- Lógica ---------- */
+function initSel() {
+  const r = S.queue[S.i];
+  S.sel = r.tipo === 'simple' ? null : r.tipo === 'multiple' ? new Set() : r.tipo === 'relacionar' ? Array(r.items.length).fill(null) : '';
+  S.done = false; S.fresh = true;
+}
+function begin(qs) { S.queue = shuffle(qs).map(prep); S.i = 0; S.results = []; S.screen = 'exam'; initSel(); render(); window.scrollTo({ top: 0 }); }
+function start() { const p = pool(S.cfg); if (!p.length) return; const n = S.cfg.n === 'all' ? p.length : Math.min(S.cfg.n, p.length); begin(shuffle(p).slice(0, n)); }
+function retry() { begin(S.results.filter(r => !r.ok).map(r => r.q)); }
+function home() { S.screen = 'config'; render(); window.scrollTo({ top: 0 }); }
+function quit() { if (confirm('¿Salir al menú principal? Se perderá el progreso de este intento.')) home(); }
+function next() {
+  if (!S.done) return;
+  if (S.i + 1 >= S.queue.length) { S.screen = 'result'; render(); window.scrollTo({ top: 0 }); return; }
+  S.i++; initSel(); render(); window.scrollTo({ top: 0 });
+}
+function msg(t) { const m = $('#msg'); if (m) { m.textContent = t; setTimeout(() => { if (m.textContent === t) m.textContent = ''; }, 2500); } }
+
+function comprobar() {
+  if (S.done) return;
+  const r = S.queue[S.i]; let ok = false;
+  if (r.tipo === 'simple') { if (S.sel === null) return; ok = r.ok.has(S.sel); }
+  else if (r.tipo === 'multiple') { if (!S.sel.size) return msg('⚠️ Marcá al menos una opción antes de comprobar.'); ok = S.sel.size === r.ok.size && [...S.sel].every(k => r.ok.has(k)); }
+  else if (r.tipo === 'relacionar') { if (S.sel.some(v => v === null)) return msg('⚠️ Completá todos los desplegables antes de comprobar.'); ok = S.sel.every((v, i) => v === r.map[i]); }
+  else { const t = norm(S.sel), a = norm(r.opts[0]); if (!t) return msg('⚠️ Escribí una respuesta antes de comprobar.'); ok = t === a || t.includes(a); }
+  S.done = true; S.lastOk = ok; S.results[S.i] = { q: r.q, ok }; render();
+}
+function elegir(k) {
+  if (S.done) return;
+  const r = S.queue[S.i];
+  if (r.tipo === 'simple') { S.sel = k; comprobar(); }
+  else if (r.tipo === 'multiple') { S.sel.has(k) ? S.sel.delete(k) : S.sel.add(k); render(); }
+}
+
+/* ---------- Eventos ---------- */
+const app = $('#app');
+app.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || b.disabled) return;
+  if (b.dataset.g) { S.cfg[b.dataset.g] = (b.dataset.g === 'n' && b.dataset.v !== 'all') ? +b.dataset.v : b.dataset.v; render(); }
+  else if (b.dataset.opt !== undefined) elegir(+b.dataset.opt);
+  else if (b.dataset.act) ({ start, check: comprobar, next, retry, home, quit })[b.dataset.act]();
+});
+app.addEventListener('change', e => { const t = e.target; if (t.dataset.rel !== undefined) S.sel[+t.dataset.rel] = t.value === '' ? null : +t.value; });
+app.addEventListener('input', e => { if (e.target.id === 'open') S.sel = e.target.value; });
+
+document.addEventListener('keydown', e => {
+  if (S.screen !== 'exam' || e.ctrlKey || e.metaKey || e.altKey) return;
+  const r = S.queue[S.i], tag = document.activeElement.tagName, typing = tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA';
+  if (e.key === 'Enter' || e.key === 'ArrowRight') {
+    if (e.key === 'ArrowRight' && typing) return;
+    e.preventDefault(); S.done ? next() : comprobar(); return;
+  }
+  if (typing || S.done || !(r.tipo === 'simple' || r.tipo === 'multiple')) return;
+  let k = -1;
+  if (/^[1-9]$/.test(e.key)) k = +e.key - 1;
+  else if (/^[a-jA-J]$/.test(e.key)) k = LET.indexOf(e.key.toUpperCase());
+  if (k >= 0 && k < r.opts.length) elegir(k);
+});
+
+render();
+</script>
+</body>
+</html>
